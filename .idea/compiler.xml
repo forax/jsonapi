@@ -10,7 +10,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="jsonapi" target="14" />
+      <module name="jsonapi" target="15" />
     </bytecodeTargetLevel>
   </component>
 </project>

@@ -1,7 +1,6 @@
 language: java
 jdk:
-  - openjdk14
-  - openjdk-ea
+  - openjdk14-ea
 
 install:
   - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
