@@ -296,6 +296,7 @@ public /*sealed*/ interface Spec /*add permits clause*/ {
   /**
    * Convert a JSON type to a Java type (in both direction)
    */
+  @FunctionalInterface
   interface Converter {
     /**
      * Receive a JSON value by example from reading a file and
@@ -312,10 +313,12 @@ public /*sealed*/ interface Spec /*add permits clause*/ {
     /**
      * Receive a Java object seen as a JSON value and convert it
      * to a JSON value by example writable to a JSON file
-     * @param object a Java object seen as a JSON value
+     * @param value a Java object encoded as a JSON value
      * @return a JSON value that can be written into a JSON fragment
      */
-    JsonValue convertFrom(JsonValue object);
+    default JsonValue convertFrom(JsonValue value) {
+      return JsonValue.from(value.convertToString());
+    }
   }
 
   interface ArrayLayout<B> {

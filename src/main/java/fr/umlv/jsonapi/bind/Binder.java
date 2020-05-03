@@ -162,7 +162,8 @@ public final class Binder {
    */
   public Binder(Lookup lookup) {
     requireNonNull(lookup);
-    finders.add(SpecFinders.newRecordFinder(lookup, this::spec));
+    finders.add(SpecFinder.newRecordFinder(lookup, this::spec));
+    finders.add(SpecFinder.newEnumFinder());
   }
 
   /**

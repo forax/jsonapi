@@ -1,13 +1,14 @@
 package fr.umlv.jsonapi.bind;
 
 import static java.lang.invoke.MethodType.methodType;
+import static java.util.stream.Collectors.toMap;
 
 import fr.umlv.jsonapi.JsonValue;
 import fr.umlv.jsonapi.bind.Spec.ObjectLayout;
-import fr.umlv.jsonapi.bind.Spec.Converter;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.function.Function;
@@ -117,17 +118,28 @@ final class SpecFinders {
     };
   }
 
-  static SpecFinder newAnyTypesAsStringFinder() {
-    return type -> Optional.of(Spec.newTypedValue(type.getTypeName(), new Converter() {
-      @Override
-      public JsonValue convertTo(JsonValue value) {
-        throw new Binder.BindingException("no default conversion");
+  static SpecFinder newEnumFinder() {
+    return type -> {
+      var enums = type.getEnumConstants();
+      if (enums == null) {
+        return Optional.empty();
       }
+      var enumMap = Arrays.stream(enums).collect(toMap(e -> ((Enum<?>)e).name(), Function.identity()));
+      return Optional.of(Spec.newTypedValue(type.getSimpleName(), value -> {
+          var enumName = value.stringValue();
+          var enumValue = enumMap.get(enumName);
+          if (enumValue == null) {
+            throw new Binder.BindingException("unknown value " + enumName + " for enum " + type.getName());
+          }
+          return JsonValue.fromOpaque(enumValue);
+      }));
+    };
+  }
 
-      @Override
-      public JsonValue convertFrom(JsonValue value) {
-        return JsonValue.from(value.convertToString());
-      }
-    }));
+  static SpecFinder newAnyTypesAsStringFinder() {
+    return type -> Optional.of(Spec.newTypedValue(
+        type.getName(),
+        value -> { throw new Binder.BindingException("no default conversion"); }
+        ));
   }
 }

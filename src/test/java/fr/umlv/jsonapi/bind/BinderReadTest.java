@@ -12,7 +12,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import fr.umlv.jsonapi.JsonReader;
 import fr.umlv.jsonapi.JsonValue;
 import fr.umlv.jsonapi.bind.Binder.BindingException;
-import fr.umlv.jsonapi.bind.Spec.Converter;
 import fr.umlv.jsonapi.bind.Spec.ObjectLayout;
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -82,18 +81,8 @@ public class BinderReadTest {
   public void readBinderRegisterLocalDate() {
     var binder = new Binder(lookup());
     var stringSpec = binder.spec(String.class);
-    var localDateSpec = stringSpec.convert(new Converter() {
-      @Override
-      public JsonValue convertTo(JsonValue value) {
-        return JsonValue.fromOpaque(LocalDate.parse(value.stringValue()));
-      }
-
-      @Override
-      public JsonValue convertFrom(JsonValue object) {
-        // convert as String
-        return JsonValue.from(object.toString());
-      }
-    });
+    var localDateSpec = stringSpec.convert(
+        value -> JsonValue.fromOpaque(LocalDate.parse(value.stringValue())));
     binder.register(SpecFinder.from(Map.of(LocalDate.class, localDateSpec)));
     record Order(LocalDate date) { }
     var json = """

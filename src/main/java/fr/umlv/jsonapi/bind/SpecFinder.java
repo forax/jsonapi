@@ -84,13 +84,12 @@ public interface SpecFinder {
   }
 
   /**
-   * Creates a spec finder able to read/write any records.
+   * Returns a spec finder able to encode/decode any records.
    *
    * @param lookup the security context that will be used to access the record constructor
    *               and methods
-   * @return a spec finder able to read/write records.
+   * @return a spec finder able to encode/decode records.
    *
-   * @see Binder#Binder(Lookup)
    * @see Binder#register(SpecFinder)
    */
   static SpecFinder newRecordFinder(Lookup lookup, Function<? super Type, ? extends Spec> downwardFinder) {
@@ -98,7 +97,18 @@ public interface SpecFinder {
   }
 
   /**
-   * Creates a spec finder that will returns
+   * Returns a spec finder able to encode/decode any enums.
+   *
+   * @return a spec finder able to encode/decode enums.
+   *
+   * @see Binder#register(SpecFinder)
+   */
+  static SpecFinder newEnumFinder() {
+    return SpecFinders.newEnumFinder();
+  }
+
+  /**
+   * Returns a spec finder that will returns
    * {@link fr.umlv.jsonapi.JsonValue#fromOpaque(Object) opaque} value spec for any types.
    *
    * This spec finder should be the last registered, any finder registered later
