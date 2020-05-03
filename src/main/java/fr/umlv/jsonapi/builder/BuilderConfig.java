@@ -61,7 +61,17 @@ public class BuilderConfig {
 
   static final BuilderConfig DEFAULT = new BuilderConfig();
 
-  private BuilderConfig(Supplier<? extends Map<String, Object>> mapSupplier,
+  /**
+   * Creates a builder config from a factory of Map, a function to transform the Map
+   * to another one at the end of the parsing, a factory of List and the transform function
+   * on lists.
+   *
+   * @param mapSupplier a factory of Map&gt;, Object&gt;
+   * @param transformMapOp a function from Map&gt;, Object&gt; to Map&gt;, Object&gt;
+   * @param listSupplier a factory of List&gt;Object&gt;
+   * @param transformListOp a function from List&gt;Object&gt; to List&gt;Object&gt;
+   */
+  public BuilderConfig(Supplier<? extends Map<String, Object>> mapSupplier,
       UnaryOperator<Map<String, Object>> transformMapOp,
       Supplier<? extends List<Object>> listSupplier,
       UnaryOperator<List<Object>> transformListOp) {
