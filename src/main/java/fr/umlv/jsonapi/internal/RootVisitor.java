@@ -20,6 +20,9 @@ public class RootVisitor {
 
   public static RootVisitor createFromOneVisitor(Object visitor) {
     if (visitor instanceof ObjectVisitor objectVisitor) {
+      if (visitor instanceof ArrayVisitor arrayVisitor) {
+        return new RootVisitor(BOTH, objectVisitor, arrayVisitor);
+      }
       return new RootVisitor(OBJECT, objectVisitor, null);
     }
     if (visitor instanceof ArrayVisitor arrayVisitor) {
