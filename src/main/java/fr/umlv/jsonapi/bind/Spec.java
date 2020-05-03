@@ -131,7 +131,7 @@ public /*sealed*/ interface Spec /*add permits clause*/ {
   default <M extends Map<String,Object>> Spec object(Supplier<? extends M> supplier, Function<? super M, ?> transformOp) {
     requireNonNull(supplier);
     requireNonNull(transformOp);
-    return new ObjectSpec("Map", null, new ObjectLayout<M>() {
+    return newTypedObject("Map", new ObjectLayout<M>() {
       @Override
       public Spec memberSpec(String memberName) {
         return Spec.this;
