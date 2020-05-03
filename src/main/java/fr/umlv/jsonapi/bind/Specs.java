@@ -89,7 +89,7 @@ final class Specs {
     }
   }
 
-  record ObjectSpec(String name, Predicate<? super String>filter, ObjectLayout<?>objectLayout) implements Spec {
+  record ObjectSpec(String name, Predicate<? super String> filter, ObjectLayout<?>objectLayout) implements Spec {
     @Override
     public String toString() {
       return name;
@@ -114,6 +114,9 @@ final class Specs {
     }
 
     Object replay(Object value, Binder binder, ObjectVisitor objectVisitor) {
+      if (filter != null) {
+        throw new BindingException("can not replay a filtered spec");
+      }
       objectVisitor.visitStartObject();
       objectLayout.replay(value, (name, elementValue) -> replayMember(name, elementValue, binder, objectVisitor));
       return objectVisitor.visitEndObject();
