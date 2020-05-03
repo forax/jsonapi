@@ -103,6 +103,7 @@ public final class ArrayBuilder implements ArrayVisitor {
    *
    * @param value add this value to the builder.
    * @return itself
+   * @throws UnsupportedOperationException is the underlying map is unmodifiable
    */
   public ArrayBuilder add(Object value) {
     requireNonNull(value);
@@ -115,6 +116,7 @@ public final class ArrayBuilder implements ArrayVisitor {
    *
    * @param list add all the values of the list into the builder.
    * @return itself
+   * @throws UnsupportedOperationException is the underlying map is unmodifiable
    *
    * @see #add(Object)
    */
@@ -127,6 +129,7 @@ public final class ArrayBuilder implements ArrayVisitor {
    *
    * @param values add all the values into the builder.
    * @return itself
+   * @throws UnsupportedOperationException is the underlying map is unmodifiable
    *
    * @see #add(Object)
    */
@@ -142,7 +145,7 @@ public final class ArrayBuilder implements ArrayVisitor {
    * {@link BuilderConfig#withTransformOps(UnaryOperator, UnaryOperator)}
    * to the underlying list.
    *
-   * @return a list, immutable by {@link BuilderConfig#defaults()}
+   * @return a list, unmodifiable by {@link BuilderConfig#defaults()}
    */
   public List<Object> toList() {
     return config.transformListOp.apply(list);

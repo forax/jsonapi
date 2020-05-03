@@ -112,6 +112,7 @@ public final class ObjectBuilder implements ObjectVisitor {
    * @param name name of the member to add
    * @param value value of the member to add
    * @return itself
+   * @throws UnsupportedOperationException is the underlying map is unmodifiable
    */
   public ObjectBuilder add(String name, Object value) {
     requireNonNull(name);
@@ -124,6 +125,7 @@ public final class ObjectBuilder implements ObjectVisitor {
    *
    * @param map add all the members of the map into the builder.
    * @return itself
+   * @throws UnsupportedOperationException is the underlying map is unmodifiable
    *
    * @see #add(String, Object)
    */
@@ -147,6 +149,7 @@ public final class ObjectBuilder implements ObjectVisitor {
    * @param name name of the object member that is added
    * @param consumer a function that will called to create the object that will be added
    * @return itself
+   * @throws UnsupportedOperationException is the underlying map is unmodifiable
    */
   public ObjectBuilder withObject(String name, Consumer<? super ObjectBuilder> consumer) {
     requireNonNull(name);
@@ -171,6 +174,7 @@ public final class ObjectBuilder implements ObjectVisitor {
    * @param name name of the object member that is added
    * @param consumer a function that will called to create the object that will be added
    * @return itself
+   * @throws UnsupportedOperationException is the underlying map is unmodifiable
    */
   public ObjectBuilder withArray(String name, Consumer<? super ArrayBuilder> consumer) {
     requireNonNull(name);
@@ -186,7 +190,7 @@ public final class ObjectBuilder implements ObjectVisitor {
    * {@link BuilderConfig#withTransformOps(UnaryOperator, UnaryOperator)}
    * to the underlying map.
    *
-   * @return a map, immutable by {@link BuilderConfig#defaults()}
+   * @return a map, unmodifiable by {@link BuilderConfig#defaults()}
    */
   public Map<String, Object> toMap() {
     return config.transformMapOp.apply(map);
