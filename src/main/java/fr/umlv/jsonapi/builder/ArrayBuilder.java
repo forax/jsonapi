@@ -13,6 +13,7 @@ import fr.umlv.jsonapi.internal.PostOpsArrayVisitor;
 import fr.umlv.jsonapi.internal.PostOpsObjectVisitor;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
 
 /**
  * An untyped builder of a representation of a JSON array.
@@ -24,7 +25,7 @@ import java.util.function.Consumer;
  * This class is able to gather all the visited values on a JSON array and build a java.util.List.
  * It implements the interface {@link ArrayVisitor}, so can be used by a {@link JsonReader}.
  * <p>
- * Example to create a list of strings using an ArrayBuilder
+ * Example to create an unmodifiable list of strings using an ArrayBuilder
  * <pre>
  * String text = """
  *   [ "Jolene", "Joleene", "Joleeeene" ]
@@ -71,10 +72,8 @@ public final class ArrayBuilder implements ArrayVisitor {
   }
 
   /**
-   * Creates an array builder that uses a {@link java.util.HashMap} and {@link java.util.ArrayList}
-   * to store a JSON object and a JSON array respectively.
-   *
-   * @see BuilderConfig
+   * Creates an array builder that uses the {@link BuilderConfig default configuration}
+   * to store a JSON values.
    */
   public ArrayBuilder() {
     this(BuilderConfig.DEFAULT, (ArrayVisitor) null);
@@ -139,13 +138,11 @@ public final class ArrayBuilder implements ArrayVisitor {
   }
 
   /**
-   * Return a list from the underlying list of this builder.
-   * Apply the {@code transformListOp} and return the result so the returned list
-   * may be a different list from the underlying list.
+   * Returns the result of applying the
+   * {@link BuilderConfig#withTransformOps(UnaryOperator, UnaryOperator)}
+   * to the underlying list.
    *
-   * @return a list (newly created or not)
-   *
-   * @see BuilderConfig
+   * @return a list, immutable by {@link BuilderConfig#defaults()}
    */
   public List<Object> toList() {
     return config.transformListOp.apply(list);

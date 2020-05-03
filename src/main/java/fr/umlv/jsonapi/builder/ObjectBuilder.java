@@ -13,6 +13,7 @@ import fr.umlv.jsonapi.internal.PostOpsArrayVisitor;
 import fr.umlv.jsonapi.internal.PostOpsObjectVisitor;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
 
 /**
  * An untyped builder of a representation of a JSON object.
@@ -25,7 +26,7 @@ import java.util.function.Consumer;
  * java.util.Map. It implements the interface {@link ObjectVisitor}, so can be used
  * by a {@link JsonReader}.
  * <p>
- * Example to create a java.util.Map using an ObjectBuilder
+ * Example to create an unmodifiable java.util.Map using an ObjectBuilder
  * <pre>
  * String text = """
  *   { "name": "Franky", "address": {  "street": "3rd", "city": "NY" }  }
@@ -75,8 +76,8 @@ public final class ObjectBuilder implements ObjectVisitor {
   }
 
   /**
-   * Creates an object builder that uses a {@link java.util.HashMap} and {@link java.util.ArrayList}
-   * to store a JSON object and a JSON array respectively.
+   * Creates an array builder that uses the {@link BuilderConfig default configuration}
+   * to store a JSON values.
    *
    * @see BuilderConfig
    */
@@ -181,13 +182,11 @@ public final class ObjectBuilder implements ObjectVisitor {
   }
 
   /**
-   * Return a map from the underlying map of this builder.
-   * Apply the {@code transformMapOp} and return the result so the returned map
-   * may be a different map from the underlying map.
+   * Returns the result of applying the
+   * {@link BuilderConfig#withTransformOps(UnaryOperator, UnaryOperator)}
+   * to the underlying map.
    *
-   * @return a map (newly created or not)
-   *
-   * @see BuilderConfig
+   * @return a map, immutable by {@link BuilderConfig#defaults()}
    */
   public Map<String, Object> toMap() {
     return config.transformMapOp.apply(map);

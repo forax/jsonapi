@@ -9,6 +9,7 @@ import static java.util.function.UnaryOperator.identity;
 import fr.umlv.jsonapi.ArrayVisitor;
 import fr.umlv.jsonapi.ObjectVisitor;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,33 +17,40 @@ import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
 /**
- * Factory functions and transformer functions used to construct
- * an {@link ObjectBuilder} or an {@link ArrayBuilder}.
+ * Factory functions and transformer functions used to construct an {@link ObjectBuilder} or an
+ * {@link ArrayBuilder}.
  *
- * Because JSON format is recursive, by example an array may contain objects and
- * an object may contain array, you have to configure the representation
- * used for an object and the representation used for an array both at the same time.
+ * <p>Because JSON format is recursive, by example an array may contain objects and an object may
+ * contain array, you have to configure the representation used for an object and the representation
+ * used for an array both at the same time.
  *
- * <p>The default configuration use {@link LinkedHashMap} for representing JSON objects and
- * {@link ArrayList} for representing JSON arrays (both data structures use the insertion order)
+ * <p>The default configuration use {@link LinkedHashMap} for representing JSON objects and {@link
+ * ArrayList} for representing JSON arrays (both data structures use the insertion order)
+ *
  * <pre>
  *   BuilderConfig config =  BuilderConfig.defaults();
  *   ObjectBuilder builder = config.newObjectBuilder();
  * </pre>
  *
- * You can configure the exact {@link Map} and {@link List} implementations to use,
- * by example use {@link java.util.HashMap} instead of {@link LinkedHashMap} to
- * use less memory (but you loose the insertion order)
+ * You can configure the exact {@link Map} and {@link List} implementations to use, by example use
+ * {@link java.util.HashMap} instead of {@link LinkedHashMap} to use less memory (but you loose the
+ * insertion order)
+ *
  * <pre>
  *   BuilderConfig config = new BuilderConfig(HashMap::new, ArrayList::new);
  *   ArrayBuilder builder = config.newArrayBuilder();
  * </pre>
  *
- * You can specify a transformation operation for each classes that will be done
- * once a builder has fully parse the object/array
+ * By default, the value returned by {@link ObjectBuilder#toMap()} and  {@link
+ * ArrayBuilder#toList()} are the specified implementation wrapped by an unmodifiable wrapper (see
+ * {@link Collections#unmodifiableMap(Map)} and * {@link Collections#unmodifiableList(List)}).
+ * You may want to avoid this wrapping to get access to the underlying mutable data structure by
+ * specifying that the transformation operation executed at the end of the parsing
+ * is a no-op
+ *
  * <pre>
  *   BuilderConfig config = new BuilderConfig(LinkedHashMap::new, ArrayList::new);
- *     .withTransformOps(Collections::unmodifiableMap, Collections::unmodifiableList);
+ *     .withTransformOps(UnaryOperator.identity(), UnaryOperator.identity());
  * </pre>
  */
 public class BuilderConfig {
@@ -71,7 +79,7 @@ public class BuilderConfig {
    */
   public BuilderConfig(Supplier<? extends Map<String, Object>> mapSupplier,
                        Supplier<? extends List<Object>> listSupplier) {
-    this(mapSupplier, identity(), listSupplier, identity());
+    this(mapSupplier, Collections::unmodifiableMap, listSupplier, Collections::unmodifiableList);
   }
 
   private BuilderConfig() {
