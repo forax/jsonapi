@@ -145,7 +145,8 @@ public interface ArrayVisitor {
 
   /**
    * In {@link VisitorMode#PULL_INSIDE pull inside mode}, this method is called before any other
-   * method. When the value of the Stream will be consumed, the method {@link #visitObject()},
+   * method (apart {@link #visitStartArray()}).
+   * When the value of the Stream will be consumed, the method {@link #visitObject()},
    * {@link #visitArray()} and {@link #visitValue(JsonValue)} will be called to transform
    * the JSON values.
    *
@@ -155,7 +156,8 @@ public interface ArrayVisitor {
    *         {@link JsonReader#parse(Reader, Object)}.
    */
   default Object visitStream(Stream<Object> stream) {
-    return null;
+    throw new UnsupportedOperationException(
+        "either the returned mode of visitStart is wrong or this method should be implemented");
   }
 
   /**
