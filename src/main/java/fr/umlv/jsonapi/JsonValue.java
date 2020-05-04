@@ -278,6 +278,21 @@ public final /*@__inline__*/ class JsonValue {
   }
 
   /**
+   * returns the current value as a string or null as null
+   * @return the current value as a string ot null as null
+   * @throws IllegalStateException if the current value is neither a string nor null
+   */
+  public String stringOrNullValue() {
+    if (kind == Kind.STRING) {
+      return (String) box;
+    }
+    if (kind == Kind.NULL) {
+      return null;
+    }
+    throw new IllegalStateException("neither a String not null: " + this);
+  }
+
+  /**
    * returns the current value as an arbitrary-precision integer
    * @return the current value as an arbitrary-precision integer
    * @throws IllegalStateException if the current value is not an arbitrary-precision integer

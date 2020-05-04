@@ -30,6 +30,7 @@ final class SpecFinders {
       var constructorTypes = new Class<?>[length];
       var accessors = new RecordAccessor[length];
       var componentMap = new HashMap<String, RecordElement>();
+      var exemplar = new Object[length];
       for(var i = 0; i < length; i++) {
         var component = components[i];
         constructorTypes[i] = component.getType();
@@ -39,6 +40,9 @@ final class SpecFinders {
         var componentType = component.getGenericType();
         var componentSpec = downwardFinder.apply(componentType);
         componentMap.put(componentName, new RecordElement(i, componentSpec));
+
+        // default values
+        exemplar[i] = componentSpec.defaultValue();
 
         // record accessor for serialization
         MethodHandle accessor;
@@ -72,7 +76,7 @@ final class SpecFinders {
 
         @Override
         public Object[] newBuilder() {
-          return new Object[length];
+          return Arrays.copyOf(exemplar, exemplar.length);
         }
         @Override
         public Object[] addObject(Object[] builder, String memberName, Object object) {
@@ -125,7 +129,7 @@ final class SpecFinders {
         return Optional.empty();
       }
       var enumMap = Arrays.stream(enums).collect(toMap(e -> ((Enum<?>)e).name(), Function.identity()));
-      return Optional.of(Spec.newTypedValue(type.getSimpleName(), value -> {
+      return Optional.of(Spec.newTypedValue(type.getSimpleName(), null, value -> {
           var enumName = value.stringValue();
           var enumValue = enumMap.get(enumName);
           if (enumValue == null) {
@@ -139,6 +143,7 @@ final class SpecFinders {
   static SpecFinder newAnyTypesAsStringFinder() {
     return type -> Optional.of(Spec.newTypedValue(
         type.getName(),
+        null,
         value -> { throw new Binder.BindingException("no default conversion"); }
         ));
   }

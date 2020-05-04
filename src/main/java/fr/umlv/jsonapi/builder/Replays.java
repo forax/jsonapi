@@ -5,6 +5,7 @@ import fr.umlv.jsonapi.JsonValue;
 import fr.umlv.jsonapi.ObjectVisitor;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 final class Replays {
@@ -45,6 +46,10 @@ final class Replays {
       }
       return;
     }
+    if (element instanceof Optional<?> optional) {
+      optional.ifPresent(v -> visitor.visitValue(JsonValue.fromAny(v)));
+      return;
+    }
     var value = JsonValue.fromAny(element);
     visitor.visitValue(value);
   }
@@ -80,6 +85,10 @@ final class Replays {
       if (objectVisitor != null) {
         replayMap(_map, objectVisitor);
       }
+      return;
+    }
+    if (element instanceof Optional<?> optional) {
+      optional.ifPresent(v -> visitor.visitMemberValue(name, JsonValue.fromAny(v)));
       return;
     }
     var value = JsonValue.fromAny(element);

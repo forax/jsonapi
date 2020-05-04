@@ -1,13 +1,16 @@
 package fr.umlv.jsonapi.bind;
 
 import static java.lang.invoke.MethodHandles.lookup;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 
@@ -85,6 +88,28 @@ public class BinderWriteTest {
     var text = binder.write(person);
     assertEquals("""
         { "name": "Doctor X", "age": 23, "bald": false }\
+        """, text);
+  }
+
+  @Test
+  public void writeARecordWithOptionalEmpty() {
+    var binder = new Binder(lookup());
+    record Person(String name, int age, Optional<String> hobby) { }
+    var ana = new Person("Ana", 22, Optional.empty());
+    var text = binder.write(ana);
+    assertEquals("""
+        { "name": "Ana", "age": 22 }\
+        """, text);
+  }
+
+  @Test
+  public void writeARecordWithOptionalPresent() {
+    var binder = new Binder(lookup());
+    record Person(String name, int age, Optional<String> hobby) { }
+    var ana = new Person("Helena", 23, Optional.of("partying"));
+    var text = binder.write(ana);
+    assertEquals("""
+        { "name": "Helena", "age": 23, "hobby": "partying" }\
         """, text);
   }
 

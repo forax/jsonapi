@@ -37,7 +37,7 @@ public interface SpecFinder {
    * @param type a Java class
    * @return a spec describing the class either as a
    *         {@link Spec#newTypedObject(String, ObjectLayout) JSON object} or as a
-   *         {@link Spec#newTypedValue(String, Converter) JSON value} or
+   *         {@link Spec#newTypedValue(String, Object, Converter) JSON value} or
    *         {@code Optional.empty} otherwise.
    */
   Optional<Spec> findSpec(Class<?> type);

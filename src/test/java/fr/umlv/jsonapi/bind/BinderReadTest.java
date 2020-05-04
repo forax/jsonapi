@@ -5,9 +5,11 @@ import static fr.umlv.jsonapi.bind.Binder.IN_OBJECT;
 import static java.lang.invoke.MethodHandles.lookup;
 import static java.util.function.Predicate.not;
 import static java.util.stream.Collectors.toList;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import fr.umlv.jsonapi.JsonReader;
 import fr.umlv.jsonapi.JsonValue;
@@ -18,6 +20,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
@@ -81,8 +84,11 @@ public class BinderReadTest {
   public void readBinderRegisterLocalDate() {
     var binder = new Binder(lookup());
     var stringSpec = binder.spec(String.class);
-    var localDateSpec = stringSpec.convert(
-        value -> JsonValue.fromOpaque(LocalDate.parse(value.stringValue())));
+    var localDateSpec = stringSpec.convert(value -> {
+          var string = value.stringOrNullValue();
+          var result = (string == null)? null: LocalDate.parse(string);
+          return JsonValue.fromAny(result);
+        });
     binder.register(SpecFinder.from(Map.of(LocalDate.class, localDateSpec)));
     record Order(LocalDate date) { }
     var json = """
@@ -251,6 +257,43 @@ public class BinderReadTest {
     record Author(String name, int age, List<String> books) { }
     var author = binder.read(json, Author.class);
     assertThrows(UnsupportedOperationException.class, () -> author.books().add("foo"));
+  }
+
+  @Test
+  public void readOptionalEmpty() {
+    var binder = new Binder(lookup());
+    var json = """
+        {
+          "name": "Ana",
+          "age": 22
+        }
+        """;
+    record Person(String name, int age, Optional<String> hobby) { }
+    var person = binder.read(json, Person.class);
+    assertAll(
+        () -> assertEquals("Ana", person.name),
+        () -> assertEquals(22, person.age),
+        () -> assertTrue(person.hobby.isEmpty())
+    );
+  }
+
+  @Test
+  public void readOptionalPresent() {
+    var binder = new Binder(lookup());
+    var json = """
+        {
+          "name": "Helena",
+          "age": 23,
+          "hobby": "partying"
+        }
+        """;
+    record Person(String name, int age, Optional<String> hobby) { }
+    var person = binder.read(json, Person.class);
+    assertAll(
+        () -> assertEquals("Helena", person.name),
+        () -> assertEquals(23, person.age),
+        () -> assertEquals("partying", person.hobby.orElseThrow())
+    );
   }
 
   @Test

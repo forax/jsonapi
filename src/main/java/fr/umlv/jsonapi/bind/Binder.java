@@ -9,7 +9,6 @@ import fr.umlv.jsonapi.JsonValue;
 import fr.umlv.jsonapi.JsonWriter;
 import fr.umlv.jsonapi.ObjectVisitor;
 import fr.umlv.jsonapi.VisitorMode;
-import fr.umlv.jsonapi.builder.BuilderConfig;
 import fr.umlv.jsonapi.internal.RootVisitor;
 import java.io.IOException;
 import java.io.Reader;
@@ -195,7 +194,7 @@ public final class Binder {
         || type == Boolean.class || type == Integer.class || type == Long.class || type == Double.class
         || type == String.class || type == BigInteger.class || type == BigDecimal.class
         || type == Object.class) {
-      return Spec.newTypedValue(type.getName(), null);
+      return Spec.newTypedValue(type.getName(), null /*FIXME*/, null);
     }
     for(var finder: finders) {
       var optSpec = finder.findSpec(type);
@@ -245,6 +244,9 @@ public final class Binder {
       if (rawType == List.class) {
         return spec(actualTypeArguments[0]).array();
       }
+      if (rawType == Optional.class) {
+        return spec(actualTypeArguments[0]).optional();
+      }
     }
     throw new BindingException("can not decode unknown type " + type.getTypeName());
   }
@@ -252,7 +254,6 @@ public final class Binder {
     return specMap.get(type);
   }
 
-  static final BuilderConfig DEFAULT_CONFIG = BuilderConfig.defaults();
 
   /**
    * A type only used to type the method {@link Binder#read(Reader, Class, ObjectToken)}

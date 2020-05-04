@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -32,8 +33,8 @@ import java.util.stream.Stream;
  * You can create your own Spec either
  * <ul>
  *   <li>Using the factory methods {@link Spec#newTypedObject(String, ObjectLayout)} and
- *   {@link Spec#newTypedValue(String, Converter)} for respectively create a spec of a JSON object
- *   or a spec of a JSON value.
+ *   {@link Spec#newTypedValue(String, Object, Converter)} for respectively create a
+ *   spec of a JSON object or a spec of a JSON value.
  *   <li>Using instance methods to create a spec from an existing spec, {@link #array()},
  *   {@link #stream(Function)}, {@link #object()} which respectively create an array of the spec
  *   (a {@link java.util.List List&lt;Object&gt;}), create a stream of the spec and create
@@ -120,6 +121,23 @@ public /*sealed*/ interface Spec /*add permits clause*/ {
    */
   default Spec object() {
     return object(LinkedHashMap::new, Collections::unmodifiableMap);
+  }
+
+  /**
+   * Creates a new spec that wrap the value into a {@link java.util.Optional}.
+   * @return a new spec that wrap the value into an optional
+   */
+  default Spec optional() {
+    return convert(new Converter() {
+      @Override
+      public JsonValue convertTo(JsonValue value) {
+        return JsonValue.fromOpaque(Optional.ofNullable(value.asObject()));
+      }
+      @Override
+      public JsonValue convertFrom(JsonValue value) {
+        return JsonValue.fromAny(((Optional<?>) value.asObject()).orElse(null));
+      }
+    });
   }
 
   /**
@@ -229,6 +247,17 @@ public /*sealed*/ interface Spec /*add permits clause*/ {
   }
 
   /**
+   * Returns the default value of the current spec as an Optional
+   * @return the default value of the current spec as an Optional
+   */
+  default Object defaultValue() {
+    if (this instanceof ValueSpec valueSpec) {
+      return valueSpec.defaultValue();
+    }
+    return null;
+  }
+
+  /**
    * Returns either an {@link ObjectVisitor} or an {@link ArrayVisitor}, depending if the spec
    * represents a JSON object or a JSON array, that can be used to read a JSON fragment.
    * @param visitorType the type of visitor wanted ({@link ObjectVisitor} or {@link ArrayVisitor})
@@ -284,12 +313,13 @@ public /*sealed*/ interface Spec /*add permits clause*/ {
    * Creates a spec corresponding to a JSON value with a value converter
    * from the JSON {@link JsonValue primitive value} to any value
    * @param name the name of the spec for debugging purpose
-   * @param converter the converter to use.
+   * @param defaultValue the default value
+   * @param converter the converter to use or null
    * @return a spec that is able to convert a JSON value to another one
    */
-  static Spec newTypedValue(String name, Converter converter) {
+  static Spec newTypedValue(String name, Object defaultValue, Converter converter) {
     requireNonNull(name);
-    return new ValueSpec(name, converter);
+    return new ValueSpec(name, defaultValue, converter);
   }
 
 
@@ -317,7 +347,7 @@ public /*sealed*/ interface Spec /*add permits clause*/ {
      * @return a JSON value that can be written into a JSON fragment
      */
     default JsonValue convertFrom(JsonValue value) {
-      return JsonValue.from(value.convertToString());
+      return JsonValue.fromAny(value.convertToString());
     }
   }
 

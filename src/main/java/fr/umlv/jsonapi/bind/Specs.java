@@ -9,6 +9,7 @@ import fr.umlv.jsonapi.bind.Binder.BindingException;
 import fr.umlv.jsonapi.internal.RootVisitor;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -19,7 +20,7 @@ final class Specs {
     throw new AssertionError();
   }
 
-  record ValueSpec(String name, Converter converter) implements Spec {
+  record ValueSpec(String name, Object defaultValue, Converter converter) implements Spec {
     @Override
     public String toString() {
       return name;
@@ -62,7 +63,8 @@ final class Specs {
               return currentConverter.convertFrom(converter.convertFrom(object));
             }
           };
-      return new ValueSpec(name + ".convert()", newConverter);
+      var convertedDefaultValue = newConverter.convertTo(JsonValue.fromAny(defaultValue)).asObject();
+      return new ValueSpec(name + ".convert()", convertedDefaultValue, newConverter);
     }
   }
 
@@ -255,6 +257,10 @@ final class Specs {
       }
       return;
     }
+    if (value instanceof Optional<?> optional) {
+      optional.ifPresent(v -> visitor.visitValue(JsonValue.fromAny(v)));
+      return;
+    }
     var spec = binder.spec(value.getClass());
     if (spec instanceof ObjectSpec objectSpec) {
       var objectVisitor = visitor.visitObject();
@@ -301,6 +307,10 @@ final class Specs {
       if (objectVisitor != null) {
         replayMap(map, binder, objectVisitor);
       }
+      return;
+    }
+    if (value instanceof Optional<?> optional) {
+      optional.ifPresent(v -> visitor.visitMemberValue(name, JsonValue.fromAny(v)));
       return;
     }
     var spec = binder.spec(value.getClass());
