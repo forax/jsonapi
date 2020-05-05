@@ -194,7 +194,7 @@ public final class Binder {
         || type == Boolean.class || type == Integer.class || type == Long.class || type == Double.class
         || type == String.class || type == BigInteger.class || type == BigDecimal.class
         || type == Object.class) {
-      return Spec.newTypedValue(type.getName(), null /*FIXME*/, null);
+      return Spec.newTypedValue(type.getName(), null);
     }
     for(var finder: finders) {
       var optSpec = finder.findSpec(type);

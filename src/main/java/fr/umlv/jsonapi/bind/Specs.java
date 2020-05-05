@@ -183,6 +183,14 @@ final class Specs {
   }
 
 
+  static Object defaultValue(Spec spec) {
+    if (spec instanceof ValueSpec valueSpec) {
+      return valueSpec.defaultValue();
+    }
+    return null;
+  }
+
+
   static Object replayRoot(Object value, Binder binder, RootVisitor visitor) {
     requireNonNull(value);  // help the JIT :)
     if (value instanceof Iterable<?> iterable) {

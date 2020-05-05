@@ -42,7 +42,7 @@ final class SpecFinders {
         componentMap.put(componentName, new RecordElement(i, componentSpec));
 
         // default values
-        exemplar[i] = componentSpec.defaultValue();
+        exemplar[i] = Specs.defaultValue(componentSpec);
 
         // record accessor for serialization
         MethodHandle accessor;
@@ -129,7 +129,7 @@ final class SpecFinders {
         return Optional.empty();
       }
       var enumMap = Arrays.stream(enums).collect(toMap(e -> ((Enum<?>)e).name(), Function.identity()));
-      return Optional.of(Spec.newTypedValue(type.getSimpleName(), null, value -> {
+      return Optional.of(Spec.newTypedValue(type.getSimpleName(), value -> {
           var enumName = value.stringValue();
           var enumValue = enumMap.get(enumName);
           if (enumValue == null) {
@@ -143,7 +143,6 @@ final class SpecFinders {
   static SpecFinder newAnyTypesAsStringFinder() {
     return type -> Optional.of(Spec.newTypedValue(
         type.getName(),
-        null,
         value -> { throw new Binder.BindingException("no default conversion"); }
         ));
   }

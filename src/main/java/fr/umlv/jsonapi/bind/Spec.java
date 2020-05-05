@@ -33,7 +33,7 @@ import java.util.stream.Stream;
  * You can create your own Spec either
  * <ul>
  *   <li>Using the factory methods {@link Spec#newTypedObject(String, ObjectLayout)} and
- *   {@link Spec#newTypedValue(String, Object, Converter)} for respectively create a
+ *   {@link Spec#newTypedValue(String, Converter)} for respectively create a
  *   spec of a JSON object or a spec of a JSON value.
  *   <li>Using instance methods to create a spec from an existing spec, {@link #array()},
  *   {@link #stream(Function)}, {@link #object()} which respectively create an array of the spec
@@ -247,17 +247,6 @@ public /*sealed*/ interface Spec /*add permits clause*/ {
   }
 
   /**
-   * Returns the default value of the current spec as an Optional
-   * @return the default value of the current spec as an Optional
-   */
-  default Object defaultValue() {
-    if (this instanceof ValueSpec valueSpec) {
-      return valueSpec.defaultValue();
-    }
-    return null;
-  }
-
-  /**
    * Returns either an {@link ObjectVisitor} or an {@link ArrayVisitor}, depending if the spec
    * represents a JSON object or a JSON array, that can be used to read a JSON fragment.
    * @param visitorType the type of visitor wanted ({@link ObjectVisitor} or {@link ArrayVisitor})
@@ -313,13 +302,12 @@ public /*sealed*/ interface Spec /*add permits clause*/ {
    * Creates a spec corresponding to a JSON value with a value converter
    * from the JSON {@link JsonValue primitive value} to any value
    * @param name the name of the spec for debugging purpose
-   * @param defaultValue the default value
    * @param converter the converter to use or null
    * @return a spec that is able to convert a JSON value to another one
    */
-  static Spec newTypedValue(String name, Object defaultValue, Converter converter) {
+  static Spec newTypedValue(String name, Converter converter) {
     requireNonNull(name);
-    return new ValueSpec(name, defaultValue, converter);
+    return new ValueSpec(name, null, converter);
   }
 
 

@@ -1,5 +1,6 @@
 package fr.umlv.jsonapi.bind;
 
+import fr.umlv.jsonapi.bind.Spec.ArrayLayout;
 import fr.umlv.jsonapi.bind.Spec.Converter;
 import fr.umlv.jsonapi.bind.Spec.ObjectLayout;
 import java.lang.invoke.MethodHandles.Lookup;
@@ -35,9 +36,10 @@ public interface SpecFinder {
    * if the finder knows how to deal with the class.
    *
    * @param type a Java class
-   * @return a spec describing the class either as a
-   *         {@link Spec#newTypedObject(String, ObjectLayout) JSON object} or as a
-   *         {@link Spec#newTypedValue(String, Object, Converter) JSON value} or
+   * @return a spec describing the class either a
+   *         {@link Spec#newTypedObject(String, ObjectLayout) JSON object} or a
+   *         {@link Spec#newTypedArray(Spec, ArrayLayout) JSON array} or a
+   *         {@link Spec#newTypedValue(String, Converter) JSON value} or a
    *         {@code Optional.empty} otherwise.
    */
   Optional<Spec> findSpec(Class<?> type);
