@@ -297,6 +297,31 @@ public class BinderReadTest {
   }
 
   @Test
+  public void readUninitializedMember() {
+    var binder = new Binder(lookup());
+    var json = """
+        {
+          "name": "Helena"
+        }
+        """;
+    record Person(String name, int age) {}
+    assertThrows(BindingException.class, () -> binder.read(json, Person.class));
+  }
+
+  @Test
+  public void readUnknownMember() {
+    var binder = new Binder(lookup());
+    var json = """
+        {
+          "name": "Helena",
+          "force": true
+        }
+        """;
+    record Person(String name) {}
+    assertThrows(BindingException.class, () -> binder.read(json, Person.class));
+  }
+
+  @Test
   public void readInMapLayout() {
     var binder = Binder.noDefaults();
     var json = """

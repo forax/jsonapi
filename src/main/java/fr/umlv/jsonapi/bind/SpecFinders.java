@@ -18,6 +18,8 @@ final class SpecFinders {
     throw new AssertionError();
   }
 
+  private static final Object UNINITIALIZED = new Object();
+
   static SpecFinder newRecordFinder(Lookup lookup, Function<? super Type, ? extends Spec> downwardFinder) {
     return type -> {
       var components = type.getRecordComponents();
@@ -42,7 +44,8 @@ final class SpecFinders {
         componentMap.put(componentName, new RecordElement(i, componentSpec));
 
         // default values
-        exemplar[i] = Specs.defaultValue(componentSpec);
+        var defaultValue = Specs.defaultValue(componentSpec);
+        exemplar[i] = (defaultValue == null)? UNINITIALIZED : defaultValue;
 
         // record accessor for serialization
         MethodHandle accessor;
@@ -64,7 +67,7 @@ final class SpecFinders {
         private RecordElement element(String name) {
           var recordElement = componentMap.get(name);
           if (recordElement == null) {
-            throw new Binder.BindingException("no element " + name + " for type " + type.getTypeName());
+            throw new Binder.BindingException("no member " + name + " for type " + type.getTypeName());
           }
           return recordElement;
         }
@@ -95,6 +98,13 @@ final class SpecFinders {
         }
         @Override
         public Object build(Object[] builder) {
+          for(var i = 0; i < builder.length; i++) {
+            if (builder[i] == UNINITIALIZED) {
+              var name = accessors[i].name;
+              throw new Binder.BindingException("uninitialized member " + name + " for type " + type.getTypeName());
+            }
+          }
+
           try {
             return constructor.invokeWithArguments(builder);
           } catch(RuntimeException | Error e) {
